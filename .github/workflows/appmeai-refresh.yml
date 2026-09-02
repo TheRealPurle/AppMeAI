@@ -1,0 +1,40 @@
+name: AppMeAI catalogue refresh
+
+on:
+  schedule:
+    - cron: "17 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appmeai-database-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+
+    steps:
+      - name: Download worker
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh catalogue
+        run: npm start
+        env:
+          SEED_MODE: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
