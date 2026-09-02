@@ -1,11 +1,9 @@
 {
-  "name": "appmeup-worker",
+  "name": "appmeai-worker",
   "version": "1.0.0",
   "main": "refresh_worker.js",
   "scripts": {
     "start": "node refresh_worker.js"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.57.0"
-  }
+  "dependencies": {}
 }
