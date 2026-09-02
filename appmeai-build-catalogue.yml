@@ -1,0 +1,55 @@
+name: AppMeAI build curated catalogue
+
+on:
+  workflow_dispatch:
+    inputs:
+      stores:
+        description: Stores to collect (apple,google or apple,google)
+        required: true
+        default: apple,google
+      query_start:
+        description: First category-query index (0 for the first run)
+        required: true
+        default: '0'
+      query_limit:
+        description: Number of category queries (414 for the complete catalogue)
+        required: true
+        default: '414'
+      import_after_collect:
+        description: Import directly into MySQL after collection
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  catalogue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: catalogue-builder
+    env:
+      COLLECT_STORES: ${{ inputs.stores }}
+      QUERY_START: ${{ inputs.query_start }}
+      QUERY_LIMIT: ${{ inputs.query_limit }}
+      IMPORT_AFTER_COLLECT: ${{ inputs.import_after_collect }}
+      MARKET: DK
+      LANGUAGE: en
+      RESULTS_PER_QUERY: '20'
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+      - run: npm install --no-audit --no-fund
+      - run: npm run collect
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appmeai-curated-catalogue
+          path: catalogue-builder/output/
+          retention-days: 14
