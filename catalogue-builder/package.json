@@ -6,6 +6,7 @@
   "engines": { "node": ">=22.12.0" },
   "scripts": {
     "collect": "node collect.mjs",
+    "collect:galaxy:test": "node collect_galaxy_test.mjs",
     "import": "node import_catalogue.mjs"
   },
   "dependencies": {
