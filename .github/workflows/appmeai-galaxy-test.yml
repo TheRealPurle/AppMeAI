@@ -1,0 +1,40 @@
+name: AppMeAI Galaxy Store collector test
+
+on:
+  workflow_dispatch:
+    inputs:
+      category_limit:
+        description: Categories from Apps and Games (1-12 each)
+        required: true
+        default: '4'
+      apps_per_category:
+        description: Apps per category (1-25)
+        required: true
+        default: '10'
+
+permissions:
+  contents: read
+
+jobs:
+  galaxy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: catalogue-builder
+    env:
+      GALAXY_CATEGORY_LIMIT: ${{ inputs.category_limit }}
+      GALAXY_APPS_PER_CATEGORY: ${{ inputs.apps_per_category }}
+      GALAXY_DELAY_MS: '1800'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+      - run: npm run collect:galaxy:test
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: appmeai-galaxy-test
+          path: catalogue-builder/output-galaxy-test/
+          retention-days: 14
