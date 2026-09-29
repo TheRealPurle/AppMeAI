@@ -11,6 +11,11 @@ on:
         description: Apps per category (1-25)
         required: true
         default: '10'
+      import_after_collect:
+        description: Import into MySQL after collection
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -31,10 +36,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.12'
-      - run: npm run collect:galaxy:test
-      - uses: actions/upload-artifact@v4
+      - name: Collect Galaxy Store apps
+        run: npm run collect:galaxy:test
+      - name: Save Galaxy test download
+        uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: appmeai-galaxy-test
           path: catalogue-builder/output-galaxy-test/
           retention-days: 14
+      - name: Import Galaxy apps into MySQL
+        if: ${{ success() && inputs.import_after_collect }}
+        env:
+          APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+          APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+        run: node import_catalogue.mjs output-galaxy-test/appmeai-galaxy-test.jsonl
