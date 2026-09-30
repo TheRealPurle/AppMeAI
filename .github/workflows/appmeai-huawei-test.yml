@@ -1,0 +1,35 @@
+name: AppMeAI Huawei AppGallery collector test
+on:
+  workflow_dispatch:
+    inputs:
+      query_start: { description: "First query index (0 for first)", required: true, default: "0" }
+      query_limit: { description: "Number of queries (0 means all)", required: true, default: "3" }
+      apps_per_query: { description: "Apps per query (1-40)", required: true, default: "10" }
+      import_after_collect: { description: "Import into MySQL after collection", type: boolean, required: true, default: false }
+permissions: { contents: read }
+jobs:
+  huawei-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults: { run: { working-directory: catalogue-builder } }
+    env:
+      HUAWEI_QUERY_START: ${{ inputs.query_start }}
+      HUAWEI_QUERY_LIMIT: ${{ inputs.query_limit }}
+      HUAWEI_APPS_PER_QUERY: ${{ inputs.apps_per_query }}
+      HUAWEI_DELAY_MS: "3000"
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22.12" }
+      - name: Collect Huawei AppGallery test
+        id: collect
+        run: npm run collect:huawei:test
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with: { name: appmeai-huawei-test, path: catalogue-builder/output-huawei-test/, retention-days: 14 }
+      - name: Import into MySQL
+        if: ${{ inputs.import_after_collect && steps.collect.outcome == 'success' }}
+        run: npm run import -- output-huawei-test/appmeai-huawei-test.jsonl
+

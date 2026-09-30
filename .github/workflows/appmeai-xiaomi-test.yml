@@ -1,0 +1,35 @@
+name: AppMeAI Xiaomi GetApps collector test
+on:
+  workflow_dispatch:
+    inputs:
+      category_start: { description: "First category index (0 for first)", required: true, default: "0" }
+      category_limit: { description: "Number of categories (0 means all)", required: true, default: "3" }
+      apps_per_category: { description: "Apps per category (1-40)", required: true, default: "10" }
+      import_after_collect: { description: "Import into MySQL after collection", type: boolean, required: true, default: false }
+permissions: { contents: read }
+jobs:
+  xiaomi-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults: { run: { working-directory: catalogue-builder } }
+    env:
+      XIAOMI_CATEGORY_START: ${{ inputs.category_start }}
+      XIAOMI_CATEGORY_LIMIT: ${{ inputs.category_limit }}
+      XIAOMI_APPS_PER_CATEGORY: ${{ inputs.apps_per_category }}
+      XIAOMI_DELAY_MS: "2500"
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22.12" }
+      - name: Collect Xiaomi GetApps test
+        id: collect
+        run: npm run collect:xiaomi:test
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with: { name: appmeai-xiaomi-test, path: catalogue-builder/output-xiaomi-test/, retention-days: 14 }
+      - name: Import into MySQL
+        if: ${{ inputs.import_after_collect && steps.collect.outcome == 'success' }}
+        run: npm run import -- output-xiaomi-test/appmeai-xiaomi-test.jsonl
+
