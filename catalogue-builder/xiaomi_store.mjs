@@ -1,13 +1,30 @@
+import { chromium } from 'playwright';
 import { clean, renderPage, saveDiagnostic, stableId } from './store_collector_common.mjs';
 
-export const XIAOMI_CATEGORIES = [
-  ['1','Communication'],['2','Social'],['3','Entertainment'],['4','Tools'],['5','Art & Design'],['6','Auto & Vehicles'],
-  ['7','Beauty'],['8','Books & Reference'],['9','Business'],['10','Comics'],['11','Dating'],['12','Education'],['13','Events'],
-  ['14','Finance'],['15','Health & Fitness'],['16','House & Home'],['17','Libraries & Demo'],['18','Lifestyle'],
-  ['19','Maps & Navigation'],['20','Medical'],['21','Music & Audio'],['22','News & Magazines'],['23','Parenting'],
-  ['24','Personalization'],['25','Photography'],['26','Productivity'],['27','Shopping'],['28','Sports'],['29','Travel & Local'],
-  ['30','Video Players & Editors'],['31','Weather'],['32','Games']
-].map(([id,name]) => ({ id, name }));
+export const XIAOMI_CATEGORIES = ['Communication','Social','Entertainment','Tools','Art & Design','Auto & Vehicles','Beauty','Books & Reference','Business','Comics','Dating','Education','Events','Finance','Food & Drink','Health & Fitness','House & Home','Libraries & Demo','Lifestyle','Maps & Navigation','Medical','Music & Audio','News & Magazines','Parenting','Personalization','Photography','Productivity','Shopping','Sports','Travel & Local','Video Players & Editors','Weather'].map(name => ({ name }));
+
+export async function resolveXiaomiCategories(categories) {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({ locale: 'en-GB' });
+    const page = await context.newPage();
+    const resolved = [];
+    for (const category of categories) {
+      await page.goto('https://global.app.mi.com/category?lo=ID&la=en', { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.getByRole('tab', { name: 'Category' }).click();
+      const button = page.getByRole('button', { name: category.name, exact: true });
+      await button.waitFor({ state: 'visible', timeout: 20000 });
+      await button.click();
+      await page.waitForURL(/\/categoryList\/[^/?]+/, { timeout: 30000 });
+      const match = page.url().match(/\/categoryList\/([^/?]+)/);
+      if (!match) throw new Error(`category route not found for ${category.name}`);
+      resolved.push({ ...category, id: decodeURIComponent(match[1]) });
+    }
+    return resolved;
+  } finally {
+    await browser.close();
+  }
+}
 
 export async function getXiaomiCategoryApps(category, limit = 25) {
   const storeUrl = `https://global.app.mi.com/categoryList/${category.id}?lo=ID&la=en`;
