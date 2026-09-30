@@ -3,18 +3,22 @@ name: AppMeAI Galaxy Store collector test
 on:
   workflow_dispatch:
     inputs:
-      category_limit:
-        description: Categories from Apps and Games (1-12 each)
+      category_start:
+        description: First category index (0 for the first category)
         required: true
-        default: '4'
+        default: '0'
+      category_limit:
+        description: Categories from Apps and Games (0 means all)
+        required: true
+        default: '0'
       apps_per_category:
         description: Apps per category (1-25)
         required: true
         default: '10'
       import_after_collect:
-        description: Import into MySQL after collection
-        required: true
+        description: Import directly into MySQL after collection
         type: boolean
+        required: true
         default: false
 
 permissions:
@@ -23,31 +27,31 @@ permissions:
 jobs:
   galaxy-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     defaults:
       run:
         working-directory: catalogue-builder
     env:
+      GALAXY_CATEGORY_START: ${{ inputs.category_start }}
       GALAXY_CATEGORY_LIMIT: ${{ inputs.category_limit }}
       GALAXY_APPS_PER_CATEGORY: ${{ inputs.apps_per_category }}
       GALAXY_DELAY_MS: '1800'
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22.12'
-      - name: Collect Galaxy Store apps
+      - name: Collect Galaxy Store catalogue
+        id: collect
         run: npm run collect:galaxy:test
-      - name: Save Galaxy test download
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: appmeai-galaxy-test
           path: catalogue-builder/output-galaxy-test/
           retention-days: 14
-      - name: Import Galaxy apps into MySQL
-        if: ${{ success() && inputs.import_after_collect }}
-        env:
-          APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
-          APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
-        run: node import_catalogue.mjs output-galaxy-test/appmeai-galaxy-test.jsonl
+      - name: Import Galaxy Store catalogue into MySQL
+        if: ${{ inputs.import_after_collect && steps.collect.outcome == 'success' }}
+        run: npm run import -- output-galaxy-test/appmeai-galaxy-test.jsonl
