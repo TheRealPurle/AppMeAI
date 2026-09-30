@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
 
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, Number.isFinite(Number(value)) ? Number(value) : min));
 export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -35,3 +36,26 @@ export async function writeResults({ outputDir, basename, apps, summary }) {
   await writeFile(`${outputDir}/summary.json`, JSON.stringify({ generated_at: new Date().toISOString(), ...summary, apps: apps.length }, null, 2) + '\n');
 }
 
+export async function renderPage(url, { waitFor = null, timeoutMs = 60000 } = {}) {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({
+      locale: 'en-GB',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36'
+    });
+    const page = await context.newPage();
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    if (waitFor) await page.locator(waitFor).first().waitFor({ state: 'attached', timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(1800);
+    return { html: await page.content(), title: await page.title(), url: page.url() };
+  } finally {
+    await browser.close();
+  }
+}
+
+export async function saveDiagnostic(store, key, html) {
+  const outputDir = `output-${store}-test/diagnostics`;
+  await mkdir(outputDir, { recursive: true });
+  const safeKey = String(key).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80) || 'page';
+  await writeFile(`${outputDir}/${safeKey}.html`, html);
+}

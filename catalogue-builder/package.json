@@ -12,6 +12,8 @@
     "collect:xiaomi:test": "node collect_xiaomi_test.mjs",
     "import": "node import_catalogue.mjs"
   },
-  "dependencies": { "@mradex77/google-play-scraper": "1.1.0" }
+  "dependencies": {
+    "@mradex77/google-play-scraper": "1.1.0",
+    "playwright": "1.55.1"
+  }
 }
-

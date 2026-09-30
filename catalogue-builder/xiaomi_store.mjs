@@ -1,4 +1,4 @@
-import { clean, fetchText, stableId } from './store_collector_common.mjs';
+import { clean, renderPage, saveDiagnostic, stableId } from './store_collector_common.mjs';
 
 export const XIAOMI_CATEGORIES = [
   ['1','Communication'],['2','Social'],['3','Entertainment'],['4','Tools'],['5','Art & Design'],['6','Auto & Vehicles'],
@@ -11,8 +11,9 @@ export const XIAOMI_CATEGORIES = [
 
 export async function getXiaomiCategoryApps(category, limit = 25) {
   const storeUrl = `https://global.app.mi.com/categoryList/${category.id}?lo=ID&la=en`;
-  const html = await fetchText(storeUrl);
+  const { html } = await renderPage(storeUrl, { waitFor: '[role="button"][aria-label^="APP Name:"]' });
   const cards = [...html.matchAll(/aria-label="APP Name:(.*?),Developer:(.*?)"[\s\S]{0,900}?<img[^>]+src="([^"]+)"/gi)];
+  if (!cards.length) await saveDiagnostic('xiaomi', category.name, html);
   return cards.slice(0, limit).map(match => {
     const name = clean(match[1], 191);
     const developer = clean(match[2] === 'undefined' ? null : match[2], 191);
