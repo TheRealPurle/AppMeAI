@@ -4,7 +4,10 @@ import {
   normalizeGalaxyApp, sleep
 } from './galaxy_store.mjs';
 
-const CATEGORY_LIMIT = clamp(Number(process.env.GALAXY_CATEGORY_LIMIT || 4), 1, 12);
+const CATEGORY_START = clamp(Number(process.env.GALAXY_CATEGORY_START || 0), 0, 999);
+// A limit of 0 means every category returned by Galaxy Store. Keeping the
+// upper bound generous also allows split runs if Samsung adds more categories.
+const CATEGORY_LIMIT = clamp(Number(process.env.GALAXY_CATEGORY_LIMIT ?? 0), 0, 999);
 const APPS_PER_CATEGORY = clamp(Number(process.env.GALAXY_APPS_PER_CATEGORY || 10), 1, 25);
 const DELAY_MS = clamp(Number(process.env.GALAXY_DELAY_MS || 1800), 1500, 15000);
 const OUT = process.env.OUTPUT_DIR || 'output-galaxy-test';
@@ -15,8 +18,13 @@ await mkdir(OUT, { recursive: true });
 
 for (const games of [false, true]) {
   try {
-    const categories = (await getGalaxyCategories({ games })).slice(0, CATEGORY_LIMIT);
-    console.log(`Galaxy ${games ? 'game' : 'app'} categories selected: ${categories.length}`);
+    const availableCategories = await getGalaxyCategories({ games });
+    const end = CATEGORY_LIMIT === 0 ? undefined : CATEGORY_START + CATEGORY_LIMIT;
+    const categories = availableCategories.slice(CATEGORY_START, end);
+    console.log(
+      `Galaxy ${games ? 'game' : 'app'} categories selected: ${categories.length}/${availableCategories.length} ` +
+      `(start ${CATEGORY_START}, limit ${CATEGORY_LIMIT || 'all'})`
+    );
     for (const category of categories) {
       try {
         const apps = await getGalaxyCategoryApps(category, { limit: APPS_PER_CATEGORY });
@@ -54,7 +62,9 @@ await writeFile(`${OUT}/summary.json`, JSON.stringify({
   generated_at: new Date().toISOString(),
   test_only: true,
   market: 'DK',
-  categories_per_type: CATEGORY_LIMIT,
+  category_start: CATEGORY_START,
+  category_limit: CATEGORY_LIMIT,
+  category_limit_label: CATEGORY_LIMIT === 0 ? 'all' : String(CATEGORY_LIMIT),
   apps_per_category: APPS_PER_CATEGORY,
   discovered: discovered.size,
   apps: apps.length,

@@ -4,6 +4,12 @@ Builds a deduplicated Apple App Store and Google Play seed catalogue from all
 categories currently shown on AppMeAI. It does not call Claude or any other AI
 API and therefore consumes no Anthropic/OpenAI tokens.
 
+The Galaxy Store workflow accepts a zero-based category start and a category
+limit. Use `category_start = 0` and `category_limit = 0` to collect every app
+and game category returned by Galaxy Store. Health, fitness, and medical store
+categories are normalized to AppMeAI's `Fitness > Health & Wellness` helper
+category while retaining the original Galaxy category in search keywords.
+
 The included manifest contains 414 searches across 12 main categories and 85
 subcategories. Apple requests are deliberately kept near 18 per minute; Google
 requests use a shared one-request-per-second limiter plus a delay. Do not remove
@@ -33,10 +39,12 @@ The existing repository secrets `APPMEAI_API_URL` and
 
 ## Samsung Galaxy Store test
 
-The separate `AppMeAI Galaxy Store collector test` workflow probes Samsung's
-public catalogue without changing or importing the production catalogue. Start
-with the defaults (4 app categories, 4 game categories and 10 apps per
-category), then download the `appmeai-galaxy-test` artifact.
+The separate `AppMeAI Galaxy Store collector test` workflow reads Samsung's
+public catalogue. For a small test, use category start `0`, category limit `4`,
+10 apps per category, and leave import unchecked. For all returned categories,
+use category start `0` and category limit `0`. The artifact is uploaded before
+the optional MySQL import, so the collected file remains downloadable if the
+import subsequently fails.
 
 The test writes `appmeai-galaxy-test.jsonl` plus `summary.json`. A successful
 test is not permission to run an unlimited scraper: keep the 1.8 second delay,

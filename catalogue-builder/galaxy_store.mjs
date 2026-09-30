@@ -109,6 +109,34 @@ export async function getGalaxyAppDetails(guid, { timeoutMs = 30000 } = {}) {
   catch { throw new Error(`Galaxy detail returned invalid JSON (HTTP ${response.status})`); }
 }
 
+export function mapGalaxyCategory(galaxyType, galaxyCategory) {
+  const sourceCategory = clean(galaxyCategory, 100) || 'Other';
+  if (galaxyType === 'Games') {
+    return {
+      category: 'Games',
+      subcategory: sourceCategory,
+      keywords: `Games ${sourceCategory}`
+    };
+  }
+
+  // AppMeAI keeps a small set of broad helper categories in the interface.
+  // Galaxy Store's health/medical categories belong under Fitness, while the
+  // source wording is retained as a keyword for ordinary text searches.
+  if (/health|fitness|medical/i.test(sourceCategory)) {
+    return {
+      category: 'Fitness',
+      subcategory: 'Health & Wellness',
+      keywords: `Apps Fitness Health Health & Wellness ${sourceCategory}`
+    };
+  }
+
+  return {
+    category: sourceCategory,
+    subcategory: sourceCategory,
+    keywords: `Apps ${sourceCategory}`
+  };
+}
+
 export function normalizeGalaxyApp(summary, detail) {
   const main = detail?.DetailMain || {};
   const guid = clean(detail?.appId || summary.GUID, 191);
@@ -119,6 +147,7 @@ export function normalizeGalaxyApp(summary, detail) {
   const ratingCount = Number(detail?.commentListTotalCount) || null;
   const modifiedText = clean(main.modifyDate, 32)?.replace(/\.+$/, '').replaceAll('.', '-');
   const modified = modifiedText ? new Date(`${modifiedText}T00:00:00Z`) : null;
+  const mappedCategory = mapGalaxyCategory(summary.galaxy_type, summary.galaxy_category);
   return {
     store: 3,
     store_app_id: guid,
@@ -131,9 +160,9 @@ export function normalizeGalaxyApp(summary, detail) {
     rating_count: ratingCount,
     downloads: null,
     description: clean(main.contentDescription, 300),
-    category: summary.galaxy_type === 'Games' ? 'Games' : (clean(summary.galaxy_category, 100) || 'Other'),
-    subcategory: clean(summary.galaxy_category, 100) || 'Other',
-    search_keywords: clean(`${summary.galaxy_type || ''} ${summary.galaxy_category || ''}`, 2000),
+    category: mappedCategory.category,
+    subcategory: mappedCategory.subcategory,
+    search_keywords: clean(mappedCategory.keywords, 2000),
     store_url: guid ? `${BASE_URL}/detail/${encodeURIComponent(guid)}?cntyCd=DNK` : null,
     origin_country: null,
     market: 'DK',
