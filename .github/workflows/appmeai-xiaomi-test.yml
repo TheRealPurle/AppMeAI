@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "22.12" }
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
       - name: Collect Xiaomi GetApps test
         id: collect
         run: npm run collect:xiaomi:test
@@ -32,4 +34,3 @@ jobs:
       - name: Import into MySQL
         if: ${{ inputs.import_after_collect && steps.collect.outcome == 'success' }}
         run: npm run import -- output-xiaomi-test/appmeai-xiaomi-test.jsonl
-
