@@ -1,4 +1,4 @@
-import { clean, renderPage, saveDiagnostic } from './store_collector_common.mjs';
+import { clean, renderPage, saveDiagnostic, sleep } from './store_collector_common.mjs';
 
 export const AMAZON_QUERIES = ['games','kids','education','fitness','health','finance','productivity','music','photo','video','social','shopping','travel','weather','books','business','food','sports','news','utilities'];
 
@@ -70,8 +70,38 @@ export function parseAmazonCards(html, query, limit = 20) {
 
 export async function getAmazonApps(query, limit = 20) {
   const url = `https://www.amazon.com/s?k=${encodeURIComponent(query)}&i=mobile-apps`;
-  const { html } = await renderPage(url, { waitFor: '[data-asin]' });
-  const apps = parseAmazonCards(html, query, limit);
-  if (!apps.length) await saveDiagnostic('amazon', query, html);
-  return apps;
+  const attempts = 4;
+  let lastHtml = '';
+  let lastReason = 'no app cards found';
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      // renderPage opens a fresh browser context on every call. This is useful
+      // when Amazon returns its intermittent generic error page to a runner.
+      const { html } = await renderPage(url, { waitFor: '[data-asin]', timeoutMs: 75000 });
+      lastHtml = html;
+
+      if (/Sorry!\s*Something went wrong!/i.test(html)) {
+        lastReason = 'Amazon temporary error page';
+      } else {
+        const apps = parseAmazonCards(html, query, limit);
+        if (apps.length) {
+          if (attempt > 1) console.log(`Amazon > ${query}: recovered on attempt ${attempt}/${attempts}`);
+          return apps;
+        }
+        lastReason = 'no valid app cards found';
+      }
+    } catch (error) {
+      lastReason = error?.message || String(error);
+    }
+
+    if (attempt < attempts) {
+      const waitMs = 12000 * attempt;
+      console.warn(`Amazon > ${query}: attempt ${attempt}/${attempts} failed (${lastReason}); retrying in ${waitMs / 1000}s`);
+      await sleep(waitMs);
+    }
+  }
+
+  if (lastHtml) await saveDiagnostic('amazon', query, lastHtml);
+  throw new Error(`${lastReason} after ${attempts} attempts`);
 }
