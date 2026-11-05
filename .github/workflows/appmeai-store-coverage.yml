@@ -1,0 +1,97 @@
+name: AppMeAI full Huawei and Xiaomi coverage
+
+on:
+  workflow_dispatch:
+    inputs:
+      store:
+        description: Store to collect
+        type: choice
+        options: [both, huawei, xiaomi]
+        default: both
+      apps_per_page:
+        description: Maximum apps inspected per result page (1-40)
+        default: '10'
+      import_after_collect:
+        description: Import verified listings into the existing catalogue
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appmeai-store-coverage
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    name: Collect ${{ matrix.store }} across 12 categories
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        store: [huawei, xiaomi]
+    defaults:
+      run:
+        working-directory: catalogue-builder
+    env:
+      COVERAGE_STORE: ${{ matrix.store }}
+      COVERAGE_APPS_PER_PAGE: ${{ inputs.apps_per_page }}
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+      APPMEAI_IMPORT_TOKEN: ${{ secrets.APPMEAI_IMPORT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ inputs.store == 'both' || inputs.store == matrix.store }}
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.store == 'both' || inputs.store == matrix.store }}
+        with:
+          node-version: '22'
+      - name: Install browser collector
+        if: ${{ inputs.store == 'both' || inputs.store == matrix.store }}
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        if: ${{ inputs.store == 'both' || inputs.store == matrix.store }}
+        run: npx playwright install --with-deps chromium
+      - name: Collect all main categories
+        id: collect
+        if: ${{ inputs.store == 'both' || inputs.store == matrix.store }}
+        run: node collect_store_coverage.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && (inputs.store == 'both' || inputs.store == matrix.store) }}
+        with:
+          name: appmeai-${{ matrix.store }}-coverage
+          path: catalogue-builder/output-${{ matrix.store }}-coverage/
+          retention-days: 30
+      - name: Import verified listings
+        if: ${{ inputs.import_after_collect && steps.collect.outcome == 'success' }}
+        run: node import_store_coverage.mjs
+      - name: Check every main category
+        if: ${{ steps.collect.outcome == 'success' }}
+        run: node assert_store_coverage.mjs
+
+  audit:
+    name: Check live coverage across all five stores
+    needs: collect
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: catalogue-builder
+    env:
+      APPMEAI_API_URL: ${{ secrets.APPMEAI_API_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Audit all main categories and stores
+        run: node audit_live_coverage.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: appmeai-live-category-coverage
+          path: catalogue-builder/output-live-coverage/
+          retention-days: 30
