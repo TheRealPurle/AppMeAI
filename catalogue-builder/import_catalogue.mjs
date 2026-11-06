@@ -70,6 +70,8 @@ export async function importApps(apps) {
     console.log(`Batch ${index / BATCH_SIZE + 1}: ${result.accepted} accepted, ${result.rejected} rejected`);
   }
   console.log(`Import complete: ${accepted} accepted, ${rejected} rejected.`);
+  if (rejected > 0 || accepted !== apps.length) throw new Error('Catalogue import was incomplete; inspect accepted/rejected counts.');
+  return {accepted,rejected};
 }
 
 async function readJsonLines(path) {

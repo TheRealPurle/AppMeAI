@@ -1,0 +1,203 @@
+{
+  "version": 11,
+  "main_categories": [
+    "fitness",
+    "finance",
+    "travel",
+    "language",
+    "photo_video",
+    "sleep",
+    "games",
+    "productivity",
+    "ai",
+    "food",
+    "meditation",
+    "music"
+  ],
+  "trusted_sources": [
+    "huawei-appgallery-verified-v11",
+    "xiaomi-getapps-verified-v11"
+  ],
+  "rules": {
+    "fitness": {
+      "id": "fitness",
+      "name": "Fitness",
+      "title": "fitness|workouts?|running|jogging|yoga|exercise|nutrition|health|pedometer|step counter",
+      "category": "fitness|health|sports and health|sports & health",
+      "description": "fitness tracker|workout (plan|plans|routine|routines)|running tracker|track.{0,25}(exercise|workouts)|yoga (classes|sessions)|exercise (tracking|tracker)",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|music|audio|entertainment|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "racing|wallpapers?",
+      "marker": "amu11_fitness"
+    },
+    "finance": {
+      "id": "finance",
+      "name": "Finance",
+      "title": "finance|financial|budget|banking|bank|money manager|expense|investing|investment|stock portfolio",
+      "category": "finance|financial|banking",
+      "description": "budget (planner|planning|tracker)|track.{0,20}expenses|expense (tracking|tracker)|money management|banking app|investment portfolio",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_finance"
+    },
+    "travel": {
+      "id": "travel",
+      "name": "Travel",
+      "title": "travel|trip|navigation|maps|flight|hotel|itinerary",
+      "category": "travel|navigation|maps",
+      "description": "flight (booking|tickets)|hotel (booking|reservations)|book.{0,20}(flights|hotels)|trip (planning|planner)|gps navigation|offline maps|travel (guide|guides|planning)",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?|finance|financial|shopping",
+      "blocked_title": "wallpapers?|themes?",
+      "marker": "amu11_travel"
+    },
+    "language": {
+      "id": "language",
+      "name": "Language",
+      "title": "languages?|translation|translator|dictionary|vocabulary|duolingo|hellotalk",
+      "category": "language|languages|translation|dictionaries",
+      "description": "learn.{0,30}(languages?|english|danish|spanish)|language (learning|lessons|course)|translate.{0,25}(text|voice|speech)|translation (tool|tools|app)|pronunciation (practice|lessons)",
+      "blocked_category": "",
+      "blocked_title": "",
+      "marker": "amu11_language"
+    },
+    "photo_video": {
+      "id": "photo_video",
+      "name": "Photo & Video",
+      "title": "photo|photography|camera|video editor|video editing|movie editor|film editor|gif maker",
+      "category": "photo|photography|photo & video|video players & editors",
+      "description": "photo editor|video editor|edit.{0,20}(photos|videos)|retouch.{0,15}photos|photo collage|background remover",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games",
+      "blocked_title": "",
+      "marker": "amu11_photo_video"
+    },
+    "sleep": {
+      "id": "sleep",
+      "name": "Sleep",
+      "title": "sleep|bedtime|snore|insomnia",
+      "category": "sleep",
+      "description": "sleep (tracking|tracker|analysis|score|scores|monitoring|insights|quality analysis)|track.{0,15}(your sleep|sleep patterns)|monitor.{0,15}(your sleep|sleep patterns)|bedtime (stories|sounds)|sleep aid|helps?.{0,15}(you sleep|fall asleep)",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_sleep"
+    },
+    "games": {
+      "id": "games",
+      "name": "Games",
+      "title": "games?|gaming|puzzle|sudoku|chess|solitaire|crossword|tower defense",
+      "category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games",
+      "description": "gameplay|match 3|turn based strategy|puzzle (game|games)|unlock.{0,20}levels|complete.{0,20}levels",
+      "blocked_category": "personalised themes|personalized themes|personalization|wallpapers?|themes?|finance|travel|navigation|music|audio|productivity|business|health|fitness|medical",
+      "blocked_title": "live.{0,18}(scores?|sports)|sports scores?|football scores?|soccer scores?|scoreboard|live games.{0,10}scores?",
+      "marker": "amu11_games"
+    },
+    "productivity": {
+      "id": "productivity",
+      "name": "Productivity",
+      "title": "productivity|notes|notepad|calendar|to[ -]do|tasks|task manager|planner|pdf|scanner|file manager|cloud storage",
+      "category": "productivity|business",
+      "description": "task management|note taking|take notes|calendar (app|sync)|document (scanner|scanning)|pdf (editor|scanner)|cloud storage",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|health|fitness|medical|sports|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "ebook|bible|productivity (guide|tips)",
+      "marker": "amu11_productivity"
+    },
+    "ai": {
+      "id": "ai",
+      "name": "AI Tools",
+      "title": "ai|artificial intelligence|chatbot|chatgpt|deepseek|aiassistant|chatai",
+      "category": "ai tools|artificial intelligence",
+      "description": "ai[ -]powered (assistant|coaching|coach|writing|editor|chat|search)|powered by ai|generative ai|artificial intelligence|ai (assistant|chatbot|study|writer)|ai智能对话助手",
+      "blocked_category": "personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_ai"
+    },
+    "food": {
+      "id": "food",
+      "name": "Food Recipes",
+      "title": "food|recipes?|cooking|cookbook|meal planner|meal planning|grocery|groceries",
+      "category": "food & drink|food|recipes|cooking",
+      "description": "recipe (collection|collections|instructions)|step by step recipes|cooking (instructions|guide)|meal (planning|planner)|grocery (list|lists)|food delivery|calorie counter|macro tracker",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_food"
+    },
+    "meditation": {
+      "id": "meditation",
+      "name": "Meditation",
+      "title": "meditation|mindfulness|meditate|breathwork",
+      "category": "meditation|mindfulness",
+      "description": "guided (meditation|breathing)|meditation (sessions|exercises|practice|aid)|mindfulness (exercises|practice)|breathing (exercises|sessions|exercise)|breathwork|meditate",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_meditation"
+    },
+    "music": {
+      "id": "music",
+      "name": "Music",
+      "title": "music|podcast|audio player|radio|piano|guitar|sound recorder|audio recorder",
+      "category": "music|music & audio",
+      "description": "music (streaming|player|production)|audio (player|recorder)|podcast (player|streaming)|instrument (lessons|tuner)",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "wallpapers?|themes?|games?|gaming|magic tiles",
+      "marker": "amu11_music"
+    },
+    "running": {
+      "id": "running",
+      "name": "Running",
+      "title": "running|run|jogging|marathon|run tracker|løb|loeb|løbe",
+      "category": "running",
+      "description": "running (tracker|tracking|plans|plan)|gps run tracker|track.{0,25}(runs|running)|supports.{0,25}running|marathon training|running routes|running and cycling",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|music|audio|entertainment|maps|navigation|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "racing|wallpapers?",
+      "marker": "amu11_running"
+    },
+    "cycling": {
+      "id": "cycling",
+      "name": "Cycling",
+      "title": "cycling|bicycle|bike tracker|cykling",
+      "category": "cycling",
+      "description": "cycling (tracker|tracking)|track.{0,25}(cycling|bike rides)|supports.{0,25}cycling",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|music|audio|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_cycling"
+    },
+    "yoga": {
+      "id": "yoga",
+      "name": "Yoga",
+      "title": "yoga|pilates|stretching",
+      "category": "yoga|pilates",
+      "description": "yoga (sessions|classes|practice)|pilates (workout|classes)|stretching (routines|exercises)",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_yoga"
+    },
+    "workout": {
+      "id": "workout",
+      "name": "Workout",
+      "title": "workout|gym|strength training|hiit|bodyweight|træning|traening",
+      "category": "fitness|sports & health",
+      "description": "workout (plan|plans|routine|routines)|strength training|personal trainer|bodyweight exercises",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|music|audio|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_workout"
+    },
+    "nutrition": {
+      "id": "nutrition",
+      "name": "Nutrition",
+      "title": "calorie|calories|nutrition|diet|macro tracker|kost",
+      "category": "nutrition",
+      "description": "calorie counter|track.{0,20}(calories|macros|nutrition)|meal planner|nutrition tracking",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games|personalised themes|personalized themes|personalization|wallpapers?|themes?",
+      "blocked_title": "",
+      "marker": "amu11_nutrition"
+    },
+    "photo_editing": {
+      "id": "photo_editing",
+      "name": "Photo editing",
+      "title": "photo editor|photo editing|retouch|fotoredigering|billedredigering",
+      "category": "photography|photo & video",
+      "description": "photo editor|photo editing|edit.{0,15}photos|retouch.{0,15}photos|background remover",
+      "blocked_category": "games?|gaming|puzzle|casual|strategy|arcade|adventure|board games|card games|word games|trivia|educational games|action|racing|role playing|casino|simulation|sports games",
+      "blocked_title": "",
+      "marker": "amu11_photo_editing"
+    }
+  }
+}
